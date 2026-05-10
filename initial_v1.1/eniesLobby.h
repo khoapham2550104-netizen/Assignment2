@@ -40,6 +40,10 @@ public:
     string getName() const;
     int getHP() const;
     int getEnergy() const;
+    int getMaxHp() const;
+
+
+
 
     virtual bool isStrawHat() const;
     virtual bool isCP9() const;

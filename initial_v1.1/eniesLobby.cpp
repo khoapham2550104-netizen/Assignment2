@@ -66,10 +66,6 @@ int Character::specialSkill(Building* target, BattleContext& context) {
     return 0;
 }
 
-void Character::endTurn(BattleContext& context) {
-    return ;
-}
-
 void Character::receiveDamage(int damage) {
     // TODO: implement
     int realDamage = damage - def;
@@ -116,7 +112,6 @@ bool Character::isCP9() const {
 
 void Character::endTurn(BattleContext& context){
     killsInTurn = 0;
-
 }
 
 /*
