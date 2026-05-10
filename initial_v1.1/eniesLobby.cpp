@@ -111,19 +111,26 @@ bool Character::isCP9() const {
  */
 StrawHat::StrawHat() : Character() {
     bounty = 0;
+    killsInTurn = 0;
 }
 
 StrawHat::StrawHat(string name, int hp, int atk, int def,
-                   int speed, int energy, long long bounty) {
+                   int speed, int energy, long long bounty)
+                   :Character(name,hp,atk,def,speed,energy) {
     // TODO: implement
+    this->bounty = bounty;
+    killsInTurn = 0;
 }
 
-bool StrawHat::isStrawHat() const {
+bool StrawHat::isStrawHat() const override {
     // TODO: implement
+    return true;
 }
 
 string StrawHat::str() const {
     // TODO: implement
+    string str = "CP9[name=" + name + ", hp=" + to_string(hp) + ", def=" + to_string(def) + ", speed=" + to_string(speed) + ", energy=" + to_string(energy) + " , bounty=" + to_string(bounty) + "]";
+    
     return "";
 }
 
@@ -131,17 +138,65 @@ string StrawHat::str() const {
  * Luffy
  */
 Luffy::Luffy(string name, int hp, int atk, int def,
-             int speed, int energy, long long bounty) { 
+             int speed, int energy, long long bounty)
+             :StrawHat(name,hp,atk,def,speed,energy,bounty) { 
     // TODO: implement
 }
 
 int Luffy::attack(Character* target, BattleContext& context) {
     // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+
+
+    int tempDamage = atk;
+    if (hp > 0.5f * maxHp){
+        tempDamage = atk;
+    }
+    else if (hp > 0.3f * maxHp){
+        tempDamage = (int)ceil(tempDamage * 1.15f);
+    }
+    else {
+        tempDamage = (int)ceil(tempDamage * 1.3f);
+    }
+    
+    if (!target->isAlive()){
+        context.morale += 5;
+        killsInTurn += 1;
+    }
+
+
     return 0;
 }
 
 int Luffy::specialSkill(Character* target, BattleContext& context) {
     // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+
+
+    if (!(energy >= 20 
+        && hp > 0.15f * maxHp)){
+            return;
+        }
+
+    int tempDamage = 2 * atk;
+    
+    speed += 15;
+    atk += 15;
+
+    int tempHp = (int)ceil(hp - 0.08f * maxHp);
+
+    hp -= clamp (tempHp,0,maxHp);
+    context.alarmLevel += 10;
+
+    if (!target->isAlive()){
+        context.morale += 5;
+        killsInTurn += 1;
+    }
+    
     return 0;
 }
 
@@ -157,6 +212,16 @@ int Luffy::specialSkill(Building* target, BattleContext& context) {
 
 void Luffy::endTurn(BattleContext& context) {
     // TODO: implement
+    if (hp > 0.3f * maxHp){
+        context.morale += 3;
+    }
+    if ( killsInTurn > 0){
+        energy += 5;
+    }
+    
+    //Battle Context including
+
+
 }
 
 /*

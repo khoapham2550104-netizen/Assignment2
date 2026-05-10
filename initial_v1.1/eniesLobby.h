@@ -53,13 +53,14 @@ public:
 class StrawHat : public Character {
 protected:
     long long bounty;
+    int killsInTurn = 0;
 
 public:
     StrawHat();
     StrawHat(string name, int hp, int atk, int def,
              int speed, int energy, long long bounty);
 
-    virtual bool isStrawHat() const;
+    virtual bool isStrawHat() const override;
     virtual string str() const;
 };
 
