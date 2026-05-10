@@ -21,6 +21,18 @@ protected:
     int speed;
     int energy;
     bool alive;
+    enum CharType {
+        NONE,
+        LUFFY,
+        ZORO,
+        SANJI,
+        NAMI,
+        USOPP,
+        CHOPPER,
+        FRANKY,
+        LUCCI,
+        JABRA
+    }
 
 public:
     Character();
@@ -41,9 +53,12 @@ public:
     int getHP() const;
     int getEnergy() const;
     int getMaxHp() const;
+    int getDef() const;
+    void setDef();
 
-
-
+    CharType getType(){
+        return NONE;
+    }
 
     virtual bool isStrawHat() const;
     virtual bool isCP9() const;
@@ -82,6 +97,7 @@ public:
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
 
+    CharType getType() const;
     void endTurn(BattleContext& context);
 };
 
@@ -95,7 +111,7 @@ public:
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-
+    CharType getType() const;
     void endTurn(BattleContext& context);
 };
 
@@ -109,7 +125,7 @@ public:
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-
+    CharType getType() const;
     void endTurn(BattleContext& context);
 };
 
@@ -123,7 +139,7 @@ public:
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-
+    CharType getType() const;
     void endTurn(BattleContext& context);
 };
 
@@ -136,7 +152,7 @@ public:
     int specialSkill(Character* target, BattleContext& context);
 
     int attack(Building* target, BattleContext& context);
-
+    CharType getType() const;
     void endTurn(BattleContext& context);
 };
 
@@ -147,7 +163,7 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
-
+    CharType getType() const;
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
 
@@ -161,7 +177,7 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
-
+    CharType getType() const;
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
 
@@ -195,13 +211,14 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
+    CharType getType() const;
 };
 
 class Kaku : public CP9Agent {
 public:
     Kaku(string name, int hp, int atk, int def,
          int speed, int energy, int doriki);
-
+    CharType getType() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
@@ -211,7 +228,7 @@ class Jabra : public CP9Agent {
 public:
     Jabra(string name, int hp, int atk, int def,
           int speed, int energy, int doriki);
-
+    CharType getType() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
@@ -221,7 +238,7 @@ class Blueno : public CP9Agent {
 public:
     Blueno(string name, int hp, int atk, int def,
            int speed, int energy, int doriki);
-
+    CharType getType() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
@@ -231,7 +248,7 @@ class Kalifa : public CP9Agent {
 public:
     Kalifa(string name, int hp, int atk, int def,
            int speed, int energy, int doriki);
-
+    CharType getType() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
@@ -241,7 +258,7 @@ class Kumadori : public CP9Agent {
 public:
     Kumadori(string name, int hp, int atk, int def,
              int speed, int energy, int doriki);
-
+    CharType getType() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
@@ -251,7 +268,7 @@ class Fukurou : public CP9Agent {
 public:
     Fukurou(string name, int hp, int atk, int def,
             int speed, int energy, int doriki);
-
+    CharType getType() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);

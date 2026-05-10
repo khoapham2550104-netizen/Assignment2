@@ -102,6 +102,14 @@ int Character::getEnergy() const {
     return energy;
 }
 
+int Character::getDef() const{
+    return def;
+}
+
+void Character::setDef(int value){
+    def = clamp(value,0, 100000);
+}
+
 bool Character::isStrawHat() const {
     return false;
 }
@@ -150,6 +158,9 @@ Luffy::Luffy(string name, int hp, int atk, int def,
              :StrawHat(name,hp,atk,def,speed,energy,bounty) { 
     // TODO: implement
 }
+CharType getType() const override{
+    return LUFFY;
+};
 
 int Luffy::attack(Character* target, BattleContext& context) {
     // TODO: implement
@@ -203,7 +214,7 @@ int Luffy::specialSkill(Character* target, BattleContext& context) {
     int tempHp = hp - (int)ceil( 0.08f * maxHp);
 
     hp = clamp(tempHp,0,maxHp);
-    context.alarmLevel += 10;
+    context.alarmLevel = clamp(context.alarmLevel + 10);
 
     if (!target->isAlive()){
         context.morale = clamp(context.morale + 5)
@@ -301,6 +312,9 @@ int Zoro::specialSkill(Character* target, BattleContext& context) {
 
     return 0;
 }
+CharType getType() const{
+    return ZORO;
+}
 
 int Zoro::attack(Building* target, BattleContext& context) {
     // TODO: implement
@@ -327,91 +341,258 @@ void Zoro::endTurn(BattleContext& context) {
  * Sanji
  */
 Sanji::Sanji(string name, int hp, int atk, int def,
-             int speed, int energy, long long bounty) {
+             int speed, int energy, long long bounty)
+             : StrawHat(name,hp,atk,def,speed,energy,bounty) {
     // TODO: implement
 }
-
+CharType getType() const{
+    return SANJI;
+}
 int Sanji::attack(Character* target, BattleContext& context) {
     // TODO: implement
-    return 0;
-}
+    
+    if(!target->isAlive()){
+        return 0;
+    }
+    int tempDamage = atk * (int)ceil(0.5f * speed);
 
-int Sanji::specialSkill(Character* target, BattleContext& context) {
-    // TODO: implement
-    return 0;
-}
+    if (target->getDef() < def){
+        tempDamage = (int)ceil(tempDamage * 1.1f);
+    }
 
-int Sanji::attack(Building* target, BattleContext& context) {
-    // TODO: implement
+    target->receiveDamage(tempDamage);
+
+    if (!target->isAlive()){
+        context.morale = clamp(context.morale + 5);
+
+        killsInTurn += 1;
+
+    }
     return 0;
 }
 
 int Sanji::specialSkill(Building* target, BattleContext& context) {
     // TODO: implement
+    
+    return 0;
+}
+
+int Sanji::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+        
+    if(target->isDestroyed()){
+        return 0;
+    }
+    int tempDamage = atk + (int)ceil(0.5f * speed);
+
+    target->receiveDamage(tempDamage);
+
+    if (!target->isAlive()){
+        killsInTurn += 1;
+    }
+    
+    return 0;
+}
+
+int Sanji::specialSkill(Character
+    * target, BattleContext& context) {
+    // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+
+    if (!(energy >= 18)){
+            return 0;
+    }
+
+    energy -= 18;
+
+    int tempDamage = (int)ceil(2.1f * atk);
+    
+
+
+    target->receiveDamage(tempDamage);
+    
+    if (target->getType() == Character::JABRA){
+        target->setDef(target->getDef() - 12);
+    }
+    else{
+        target->setDef(target->getDef() - 8);
+    }
+
+    if (!target->isAlive()){
+        killsInTurn += 1;
+    }
     return 0;
 }
 
 void Sanji::endTurn(BattleContext& context) {
     // TODO: implement
+    if (killsInTurn > 0){
+        context.morale = clamp(context.morale + 8);
+        atk = (int)ceil(atk * 1.1f);
+    }
+
+    Character::endTurn(context);
 }
 
 /*
  * Nami
  */
 Nami::Nami(string name, int hp, int atk, int def,
-           int speed, int energy, long long bounty) {
+           int speed, int energy, long long bounty)
+           :StrawHat(name,hp,atk,def,speed,energy,bounty) {
     // TODO: implement
 }
 
 int Nami::attack(Character* target, BattleContext& context) {
     // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+    int tempDamage = atk + (int)ceil(0.3f * target->getDef());
+
+    target->receiveDamage(tempDamage);
+
+    if (!target->isAlive()){
+        killsInTurn += 1;
+    }
+
     return 0;
 }
 
 int Nami::specialSkill(Character* target, BattleContext& context) {
     // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+
+    if (!(energy >= 20)){
+            return 0;
+    }
+
+    energy -= 20;
+
+    int tempDamage = atk + 40;
+
+    target->receiveDamage(tempDamage);
+    target->setSpeed(target->getSpeed() - 10);
+
+    if (!target->isAlive()){
+        killsInTurn += 1;
+    }
+
+    context.busterCallTimer += 1;
+    context.alarmLevel = clamp(context.alarmLevel -5);
     return 0;
 }
 
 int Nami::attack(Building* target, BattleContext& context) {
     // TODO: implement
+    if(target->isDestroyed()){
+        return 0;
+    }
+    int tempDamage = (int)ceil( atk * 0.5f);
+
+    target->receiveDamage(tempDamage);
+    if (target->isDestroyed()){
+        //Set target destroyed in class building
+    }
+
     return 0;
 }
 
 int Nami::specialSkill(Building* target, BattleContext& context) {
     // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+
+    if (!(energy >= 20)){
+            return 0;
+    }
+
+    energy -= 20;
+
+    int tempDamage = atk + 40;
+    tempDamage = (int)ceil(tempDamage * 1.5f);
+    target->receiveDamage(tempDamage);
+
+
+    if (target->isDestroyed()){
+        //Set to destroyed
+    }
+
+    context.busterCallTimer += 1;
+    context.alarmLevel = clamp(context.alarmLevel -5);
     return 0;
 }
 
 void Nami::endTurn(BattleContext& context) {
     // TODO: implement
+    if(killsInTurn >0){
+        context.morale = clamp(context.morale + 5);
+        energy = clamp(energy + 6);
+    }
+    Character::endTurn(context);
 }
 
 /*
  * Chopper
  */
 Chopper::Chopper(string name, int hp, int atk, int def,
-                 int speed, int energy, long long bounty) {
+                 int speed, int energy, long long bounty)
+                 : StrawHat ( name,hp,atk,def,speed,energy,bounty) {
     // TODO: implement
 }
 
 int Chopper::attack(Character* target, BattleContext& context) {
     // TODO: implement
+    if (!target->isAlive()){
+        return 0;
+    }
+    target->receiveDamage(atk);
+    if (target->isAlive()){
+        killsInTurn += 1;
+    }
+    
     return 0;
 }
 
 int Chopper::specialSkill(Character* target, BattleContext& context) {
     // TODO: implement
+    //To the lowest health member
+
+    if (!(energy >= 15)){
+        return 0;
+    }
+
+    energy -= 15;
+
+    int heal =  35 + (int)ceil(0.5f * atk);
+    target->setHp(target->getHP() + heal);
+
+    if (target->getType() == Character::LUFFY){
+        context.morale = clamp(context.morale + 5);
+    }
+
     return 0;
 }
 
 int Chopper::attack(Building* target, BattleContext& context) {
     // TODO: implement
+    if (!target->isDestroyed()){
+        return 0;
+    }
+    
+    target->receiveDamage(atk);
+
     return 0;
 }
 
 void Chopper::endTurn(BattleContext& context) {
     // TODO: implement
+    return;
 }
 
 /*
