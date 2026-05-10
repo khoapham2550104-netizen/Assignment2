@@ -51,7 +51,7 @@ Character::~Character() {
     // TODO: implement if needed
 }
 
-void Character::clamp(int x, int min, int max){
+void Character::clamp(int x, int min = 0, int max = 100){
     if (x < min) return min;
     else if (x > max) return max;
     return x;
@@ -97,6 +97,9 @@ int Character::getHP() const {
     // TODO: implement
     return hp;
 }
+int character::getMaxHp() const{
+    return maxHp;
+}
 
 int Character::getEnergy() const {
     // TODO: implement
@@ -109,6 +112,11 @@ bool Character::isStrawHat() const {
 
 bool Character::isCP9() const {
     return false;
+}
+
+void Character::endTurn(BattleContext& context){
+    killsInTurn = 0;
+
 }
 
 /*
@@ -170,7 +178,7 @@ int Luffy::attack(Character* target, BattleContext& context) {
 
     
     if (!target->isAlive()){
-        context.morale += 5;
+        context.morale = clamp(context..morale +  5);
         killsInTurn += 1;
     }
 
@@ -189,20 +197,21 @@ int Luffy::specialSkill(Character* target, BattleContext& context) {
         && hp > 0.15f * maxHp)){
             return;
         }
-
+    energy -= 20;
+    
     int tempDamage = 2 * atk;
     target->receiveDamage(tempDamage);
 
     speed += 15;
     atk += 15;
 
-    int tempHp = (int)ceil(hp - 0.08f * maxHp);
+    int tempHp = hp - (int)ceil( 0.08f * maxHp);
 
-    hp = clamp (tempHp,0,maxHp);
+    hp = clamp(tempHp,0,maxHp);
     context.alarmLevel += 10;
 
     if (!target->isAlive()){
-        context.morale += 5;
+        context.morale = clamp(context.morale + 5)
         killsInTurn += 1;
     }
     
@@ -225,11 +234,11 @@ void Luffy::endTurn(BattleContext& context) {
         context.morale += 3;
     }
     if ( killsInTurn > 0){
-        energy += 5;
+        energy = clamp(energy+5);
     }
     
     //Battle Context including
-
+    Character::endTurn(context);
 
 }
 
@@ -238,12 +247,11 @@ void Luffy::endTurn(BattleContext& context) {
  */
 Zoro::Zoro(string name, int hp, int atk, int def,
            int speed, int energy, long long bounty)
-           :Straw(name,hp,atk,def,speed,energy,bounty) {
+           :StrawHat(name,hp,atk,def,speed,energy,bounty) {
     // TODO: implement
 }
 
 int Zoro::attack(Character* target, BattleContext& context) {
-    // TODO: implement
     // TODO: implement
     if(!target->isAlive()){
         return 0;
@@ -252,12 +260,16 @@ int Zoro::attack(Character* target, BattleContext& context) {
 
     int tempDamage = atk + (int)ceil(0.2f * def);
     
-    if ()
-    
+    if (target->getHP() < target->getMaxHp() * 0.4f){
+        tempDamage = (int)ceil(tempDamage * 1.15f);
+    }
 
+    target->receiveDamage(tempDamage);
     if (!target->isAlive()){
-        context.morale += 5;
+        context.morale = clamp(context.morale + 5);
+
         killsInTurn += 1;
+
     }
     
 
@@ -266,30 +278,29 @@ int Zoro::attack(Character* target, BattleContext& context) {
 
 int Zoro::specialSkill(Character* target, BattleContext& context) {
     // TODO: implement
-    // TODO: implement
+
     if(!target->isAlive()){
         return 0;
     }
 
+    if (!(energy >= 15)){
+            return 0;
+    }
 
-    if (!(energy >= 20 
-        && hp > 0.15f * maxHp)){
-            return;
-        }
+    energy -= 15;
 
-    int tempDamage = 2 * atk;
+    int tempDamage = (int)ceil(2.2f * atk);
     
-    speed += 15;
-    atk += 15;
+    if (target->getHP() < 0.5f * target->getMaxHp()){
+        tempDamage = (int)ceil(tempDamage * 1.5f);
+    }
 
-    int tempHp = (int)ceil(hp - 0.08f * maxHp);
-
-    hp -= clamp (tempHp,0,maxHp);
-    context.alarmLevel += 10;
-
+    target->receiveDamage(tempDamage);
     if (!target->isAlive()){
-        context.morale += 5;
+        context.morale = clamp(context.morale + 4);
+
         killsInTurn += 1;
+        energy = clamp(energy + 8);
     }
     
 
@@ -298,6 +309,7 @@ int Zoro::specialSkill(Character* target, BattleContext& context) {
 
 int Zoro::attack(Building* target, BattleContext& context) {
     // TODO: implement
+
     return 0;
 }
 
@@ -308,6 +320,12 @@ int Zoro::specialSkill(Building* target, BattleContext& context) {
 
 void Zoro::endTurn(BattleContext& context) {
     // TODO: implement
+    if (killsInTurn > 0){
+        context.morale = clamp(context.morale + 6);
+        atk = (int)ceil(atk * 1.05f);
+    }
+    
+    Character::endTurn(context);
 }
 
 /*
