@@ -301,6 +301,8 @@ public:
 
 public:
     BattleContext();
+    BattleContext(int morale,int alarmLevel,int rescueProgress,int escapeProgress,int busterCallTimer,int maxTurns);
+    
     void nextTurn();
 };
 

@@ -1361,13 +1361,47 @@ void BusterCallShip::onDestroyed(BattleContext& context) {
  */
 EniesLobbyBattle::EniesLobbyBattle(const string& filename) {
     // TODO: implement
+    ifstream Init(filename);
+    Init.clear();
+    Init.seekg(0);
+
+    string type;
+    int StrawHatI = 0, CP9AgentI = 0, BuildingI = 0;
+    while (Init >> type){
+
+    if (type == "CONTEXT"){
+        int morale, rescueProgress,escapeProgress, busterCallTimer, maxTurns;
+        Init >> morale >> rescueProgress >> escapeProgress >> busterCallTimer >> maxTurns;
+
+        context = BattleContext(morale,alarmLevel,rescueProgress,escapeProgress,busterCallTimer,maxTurns);
+    }
+    else if (type == "STRAW_HAT"){
+        
+    }
+    else if (type == "CP9"){}
+    else if (type == "BUILDING"){}
+}
 
 
 
+
+
+
+
+    Init.close();
 }
 
 EniesLobbyBattle::~EniesLobbyBattle() {
     // TODO: implement
+    for (int i = 0; i < 7;i++){
+        delete strawHats[i];
+        delete cp9Agents[i];
+        if (i< 5) delete buildings[i];
+    }
+
+    delete[] strawHats;
+    delete[] cp9Agents;
+    delete[] buildings;
 }
 
 void EniesLobbyBattle::loadFromFile(const string& filename) {
