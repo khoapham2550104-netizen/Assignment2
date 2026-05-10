@@ -11,6 +11,8 @@ BattleContext::BattleContext() {
     escapeProgress = 0;
     busterCallTimer = 0;
     mainGateDestroyed = false;
+    freeze = false;
+    emergency = false;
     robinRescued = false;
     bridgeOpened = false;
     battleEnded = false;
@@ -685,7 +687,7 @@ int Usopp::attack(Building* target, BattleContext& context) {
     
     target->receiveDamage(tempDamage);
 
-    target->setDestroyed();
+
     
     return 0;
 }
@@ -706,7 +708,6 @@ int Usopp::specialSkill(Building* target, BattleContext& context) {
     
 
     target->receiveDamage(tempDamage);
-    target->setDestroyed();
     return 0;
 }
 
@@ -806,7 +807,10 @@ int Franky::specialSkill(Building* target, BattleContext& context) {
     //Skill 2
     if (energy < 30) return 0;
     energy -= 30;
-    target->setDestroyed(true);
+
+
+    target->receiveDamage(target->getMaxHp());
+
 
 
     return 0;
@@ -1219,6 +1223,8 @@ void Fukurou::endTurn(BattleContext& context) {
  */
 Building::Building(string name, int hp) {
     // TODO: implement
+    this->name = name;
+    this->hp = hp;
 }
 
 Building::~Building() {
@@ -1226,7 +1232,12 @@ Building::~Building() {
 }
 
 void Building::receiveDamage(int damage) {
-    // TODO: implement
+    hp = hp - damage > 0 ? hp - damage : 0;
+    destroyed  = hp > 0;   
+}
+
+int Building::getMaxHp() const {
+    return maxHP;
 }
 
 bool Building::isDestroyed() const {
@@ -1240,7 +1251,9 @@ void Building::onDestroyed(BattleContext& context) {
 
 string Building::str () const {
     // TODO: implement
-    return "";
+    string str = "Building[name=" + name + ", hp=" + to_string(hp) + ", maxHP=" + to_string(maxHP) + ", destroyed=" + (destroyed? "true" : "false") +"]";
+
+    return str;
 }
 
 /*
@@ -1250,10 +1263,22 @@ MainGate::MainGate(string name, int hp) : Building(name, hp) {}
 
 void MainGate::applyEffect(BattleContext& context) {
     // TODO: implement
+    if (!destroyed)
+        context.freeze = true;
+    else{
+        context.freeze = false;
+    }
+    //rescueProgress không tăng
 }
 
 void MainGate::onDestroyed(BattleContext& context) {
     // TODO: implement
+    
+    if (destroyed) {
+        context.mainGateDestroyed = true;
+        context.rescueProgress = clamp(context.rescueProgress + 20);
+        context.morale = clamp(context.morale + 5);
+    }
 }
 
 /*
@@ -1263,10 +1288,16 @@ Courthouse::Courthouse(string name, int hp) : Building(name, hp) {}
 
 void Courthouse::applyEffect(BattleContext& context) {
     // TODO: implement
+    if(!destroyed){
+        context.alarmLevel = clamp(context.alarmLevel + 5);
+    }
+
+
 }
 
 void Courthouse::onDestroyed(BattleContext& context) {
     // TODO: implement
+    if(destroyed) context.alarmLevel = clamp(context.alarmLevel - 20);
 }
 
 /*
@@ -1276,15 +1307,30 @@ TowerOfJustice::TowerOfJustice(string name, int hp) : Building(name, hp) {}
 
 void TowerOfJustice::applyEffect(BattleContext& context) {
     // TODO: implement
+    if (context.mainGateDestroyed && !context.robinRescued){
+        context.rescueProgress = clamp(context.rescueProgress + 5);
+    }
+    if (context.rescueProgress >= 100){
+        context.robinRescued = true;
+        context.morale = clamp(context.morale + 10);
+    }
 }
 
 /*
  * BridgeOfHesitation
  */
-BridgeOfHesitation::BridgeOfHesitation(string name, int hp) : Building(name, hp) {}
+BridgeOfHesitation::BridgeOfHesitation(string name, int hp) : Building(name, hp){}
 
 void BridgeOfHesitation::applyEffect(BattleContext& context) {
     // TODO: implement
+    if ( context.robinRescued){
+        context.bridgeOpened = true;
+        context.escapeProgress = clamp(context.escapeProgress + 5);
+    }
+    if (context.escapeProgress >= 100){
+        context.battleEnded = true;
+        context.resultCode = "STRAW_HAT_WIN";
+    }
 }
 
 /*
@@ -1294,10 +1340,20 @@ BusterCallShip::BusterCallShip(string name, int hp) : Building(name, hp) {}
 
 void BusterCallShip::applyEffect(BattleContext& context) {
     // TODO: implement
+    if(!destroyed){
+        context.busterCallTimer -= 1;
+    }
+    if (context.busterCallTimer <= 0){
+        context.battleEnded = true;
+        context.resultCode = "BUSTER_CALL";
+    }
 }
 
 void BusterCallShip::onDestroyed(BattleContext& context) {
     // TODO: implement
+    if(destroyed){
+        context.busterCallTimer += 3;
+    }
 }
 
 /*
@@ -1305,6 +1361,9 @@ void BusterCallShip::onDestroyed(BattleContext& context) {
  */
 EniesLobbyBattle::EniesLobbyBattle(const string& filename) {
     // TODO: implement
+
+
+
 }
 
 EniesLobbyBattle::~EniesLobbyBattle() {

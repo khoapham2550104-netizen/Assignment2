@@ -291,6 +291,8 @@ public:
     int rescueProgress;
     int escapeProgress;
     int busterCallTimer;
+    bool freeze;
+    bool emergency;
     bool mainGateDestroyed;
     bool robinRescued;
     bool bridgeOpened;
