@@ -76,11 +76,16 @@ void Character::receiveDamage(int damage) {
     if (realDamage > 0){
         hp = this->clamp(hp - realDamage,0,maxHp);
     }
+    this->setAlive();
 }
 
 bool Character::isAlive() const {
     // TODO: implement
     return alive;
+}
+
+void Character::setAlive() {
+    this->alive = hp > 0;
 }
 
 string Character::getName() const {
@@ -161,6 +166,9 @@ int Luffy::attack(Character* target, BattleContext& context) {
         tempDamage = (int)ceil(tempDamage * 1.3f);
     }
     
+    target->receiveDamage(tempDamage);
+
+    
     if (!target->isAlive()){
         context.morale += 5;
         killsInTurn += 1;
@@ -183,13 +191,14 @@ int Luffy::specialSkill(Character* target, BattleContext& context) {
         }
 
     int tempDamage = 2 * atk;
-    
+    target->receiveDamage(tempDamage);
+
     speed += 15;
     atk += 15;
 
     int tempHp = (int)ceil(hp - 0.08f * maxHp);
 
-    hp -= clamp (tempHp,0,maxHp);
+    hp = clamp (tempHp,0,maxHp);
     context.alarmLevel += 10;
 
     if (!target->isAlive()){
@@ -228,17 +237,62 @@ void Luffy::endTurn(BattleContext& context) {
  * Zoro
  */
 Zoro::Zoro(string name, int hp, int atk, int def,
-           int speed, int energy, long long bounty) {
+           int speed, int energy, long long bounty)
+           :Straw(name,hp,atk,def,speed,energy,bounty) {
     // TODO: implement
 }
 
 int Zoro::attack(Character* target, BattleContext& context) {
     // TODO: implement
+    // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+
+
+    int tempDamage = atk + (int)ceil(0.2f * def);
+    
+    if ()
+    
+
+    if (!target->isAlive()){
+        context.morale += 5;
+        killsInTurn += 1;
+    }
+    
+
     return 0;
 }
 
 int Zoro::specialSkill(Character* target, BattleContext& context) {
     // TODO: implement
+    // TODO: implement
+    if(!target->isAlive()){
+        return 0;
+    }
+
+
+    if (!(energy >= 20 
+        && hp > 0.15f * maxHp)){
+            return;
+        }
+
+    int tempDamage = 2 * atk;
+    
+    speed += 15;
+    atk += 15;
+
+    int tempHp = (int)ceil(hp - 0.08f * maxHp);
+
+    hp -= clamp (tempHp,0,maxHp);
+    context.alarmLevel += 10;
+
+    if (!target->isAlive()){
+        context.morale += 5;
+        killsInTurn += 1;
+    }
+    
+
     return 0;
 }
 
