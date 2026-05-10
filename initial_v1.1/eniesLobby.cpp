@@ -37,11 +37,26 @@ Character::Character() {
 
 Character::Character(string name, int hp, int atk, int def, int speed, int energy) {
     // TODO: implement
+    this->name = name;
+    this->hp = hp > 0 ? hp : 0;
+    this->atk = atk;
+    this->def = def;
+    this->speed = speed;
+    this->energy = energy;
+    this->maxHp = this->hp;
+    this->alive = hp > 0;
 }
 
 Character::~Character() {
     // TODO: implement if needed
 }
+
+void Character::clamp(int x, int min, int max){
+    if (x < min) return min;
+    else if (x > max) return max;
+    return x;
+}
+
 
 int Character::attack(Building* target, BattleContext& context) {
     return 0;
@@ -57,6 +72,10 @@ void Character::endTurn(BattleContext& context) {
 
 void Character::receiveDamage(int damage) {
     // TODO: implement
+    int realDamage = damage - def;
+    if (realDamage > 0){
+        hp = this->clamp(hp - realDamage,0,maxHp);
+    }
 }
 
 bool Character::isAlive() const {
