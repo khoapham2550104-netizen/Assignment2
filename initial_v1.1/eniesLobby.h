@@ -31,7 +31,12 @@ protected:
         CHOPPER,
         FRANKY,
         LUCCI,
-        JABRA
+        JABRA,
+        KAKU,
+        BLUENEO,
+        KALIFA,
+        KUMADORI,
+        FUKUROU
     }
 
 public:
@@ -55,6 +60,7 @@ public:
     int getMaxHp() const;
     int getDef() const;
     void setDef();
+    void clampStats();
 
     CharType getType(){
         return NONE;
