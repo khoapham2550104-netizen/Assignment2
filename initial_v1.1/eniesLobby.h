@@ -11,6 +11,13 @@ struct TurnNode;
 /*
  * Character
  */
+//Global
+int clamp(int value,int min, int max);
+
+
+
+
+
 class Character {
 protected:
     string name;
@@ -19,8 +26,13 @@ protected:
     int atk;
     int def;
     int speed;
+    int skillEnergy;
     int energy;
+    int killsInTurn;
     bool alive;
+    bool isWeakest;
+
+public:
     enum CharType {
         NONE,
         LUFFY,
@@ -36,14 +48,17 @@ protected:
         BLUENEO,
         KALIFA,
         KUMADORI,
-        FUKUROU
-    }
+        FUKUROU,
+        CP9,
+        STRAWHA
+    };
 
-public:
+
+
     Character();
     Character(string name, int hp, int atk, int def, int speed, int energy);
     virtual ~Character();
-
+    bool isSufficient(int needed);
     virtual int attack(Character* target, BattleContext& context) = 0;
     virtual int specialSkill(Character* target, BattleContext& context) = 0;
 
@@ -51,7 +66,7 @@ public:
     virtual int specialSkill(Building* target, BattleContext& context);
 
     virtual void endTurn(BattleContext& context);
-
+    virtual bool isSufficient() const;
     void receiveDamage(int damage);
     bool isAlive() const;
     string getName() const;
@@ -59,10 +74,14 @@ public:
     int getEnergy() const;
     int getMaxHp() const;
     int getDef() const;
-    void setDef();
-    void clampStats();
-
-    CharType getType(){
+    void setDef(int value);
+    void setAlive();
+    int getSpeed() const;
+    void setSpeed(int value);
+    void setHp(int value);
+    bool isLowestHealth() const;
+    void setLowestHealth(bool x);
+    virtual CharType getType() const{
         return NONE;
     }
 
@@ -78,13 +97,12 @@ public:
 class StrawHat : public Character {
 protected:
     long long bounty;
-    int killsInTurn = 0;
 
 public:
     StrawHat();
     StrawHat(string name, int hp, int atk, int def,
              int speed, int energy, long long bounty);
-
+   
     virtual bool isStrawHat() const override;
     virtual string str() const;
 };
@@ -102,8 +120,9 @@ public:
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-
-    CharType getType() const;
+    bool isSufficient() const;
+    CharType getClan() const;
+    CharType getType() const override;
     void endTurn(BattleContext& context);
 };
 
@@ -114,10 +133,11 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
+    bool isSufficient() const;
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-    CharType getType() const;
+    CharType getType() const override;
     void endTurn(BattleContext& context);
 };
 
@@ -125,13 +145,14 @@ class Sanji : public StrawHat {
 public:
     Sanji(string name, int hp, int atk, int def,
           int speed, int energy, long long bounty);
+    bool isSufficient() const;
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-    CharType getType() const;
+    CharType getType() const override;
     void endTurn(BattleContext& context);
 };
 
@@ -142,10 +163,11 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
+    bool isSufficient() const;
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-    CharType getType() const;
+    CharType getType() const override;
     void endTurn(BattleContext& context);
 };
 
@@ -156,9 +178,10 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
+    bool isSufficient() const;
 
     int attack(Building* target, BattleContext& context);
-    CharType getType() const;
+    CharType getType() const override;
     void endTurn(BattleContext& context);
 };
 
@@ -169,21 +192,26 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
-    CharType getType() const;
+    CharType getType() const override;
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
+    bool isSufficient() const;
 
     void endTurn(BattleContext& context);
 };
 
 class Franky : public StrawHat {
 public:
+    int skillEnergy1;
+    int skillEnergy2;
+
     Franky(string name, int hp, int atk, int def,
            int speed, int energy, long long bounty);
-
+    int isSufficientSkill() const;
+    bool isSufficient() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
-    CharType getType() const;
+    CharType getType() const override;
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
 
@@ -201,8 +229,8 @@ public:
     CP9Agent();
     CP9Agent(string name, int hp, int atk, int def,
              int speed, int energy, int doriki);
-
-    virtual bool isCP9() const;
+    Character::CharType getClan() const; 
+    bool isCP9() const;
     virtual string str() const;
 };
 
@@ -217,67 +245,80 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
-    CharType getType() const;
+    Character::CharType getType() const override;
+    bool isCP9() const;
 };
 
 class Kaku : public CP9Agent {
 public:
     Kaku(string name, int hp, int atk, int def,
          int speed, int energy, int doriki);
-    CharType getType() const;
+    Character::CharType getType() const override;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
+    bool isSufficient() const;
+
 };
 
 class Jabra : public CP9Agent {
 public:
     Jabra(string name, int hp, int atk, int def,
           int speed, int energy, int doriki);
-    CharType getType() const;
+    Character::CharType getType() const override;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
+    bool isSufficient() const;
+
 };
 
 class Blueno : public CP9Agent {
 public:
     Blueno(string name, int hp, int atk, int def,
            int speed, int energy, int doriki);
-    CharType getType() const;
+    Character::CharType getType() const override;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
+    bool isSufficient() const;
+
 };
 
 class Kalifa : public CP9Agent {
 public:
     Kalifa(string name, int hp, int atk, int def,
            int speed, int energy, int doriki);
-    CharType getType() const;
+    Character::CharType getType() const override;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
+    bool isSufficient() const;
+
 };
 
 class Kumadori : public CP9Agent {
 public:
     Kumadori(string name, int hp, int atk, int def,
              int speed, int energy, int doriki);
-    CharType getType() const;
+    Character::CharType getType() const override;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
+    bool isSufficient() const;
+
 };
 
 class Fukurou : public CP9Agent {
 public:
     Fukurou(string name, int hp, int atk, int def,
             int speed, int energy, int doriki);
-    CharType getType() const;
+    Character::CharType getType() const override;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
+    bool isSufficient() const;
+
 };
 
 /*
@@ -317,6 +358,16 @@ protected:
     bool destroyed;
 
 public:
+    enum BuildingType {
+        NONE,
+        MAINGATE,
+        COURTHOUSE,
+        TOWEROFJUSTICE,
+        BRIDGEOFHESITATION,
+        BUSTERCALLSHIP
+    };
+
+
     Building(string name, int hp);
     virtual ~Building();
 
@@ -325,6 +376,10 @@ public:
 
     virtual void applyEffect(BattleContext& context) = 0;
     virtual void onDestroyed(BattleContext& context);
+    int getHP() const;
+    int getMaxHp() const;
+
+    virtual BuildingType getType() const;
 
     virtual string str () const;
 };
@@ -335,15 +390,17 @@ public:
 class MainGate : public Building {
 public:
     MainGate(string name, int hp);
+    Building::BuildingType getType() const override;
 
     void applyEffect(BattleContext& context);
     void onDestroyed(BattleContext& context);
+
 };
 
 class Courthouse : public Building {
 public:
     Courthouse(string name, int hp);
-
+    Building::BuildingType getType() const override;
     void applyEffect(BattleContext& context);
     void onDestroyed(BattleContext& context);
 };
@@ -351,21 +408,21 @@ public:
 class TowerOfJustice : public Building {
 public:
     TowerOfJustice(string name, int hp);
-
+    Building::BuildingType getType() const override;
     void applyEffect(BattleContext& context);
 };
 
 class BridgeOfHesitation : public Building {
 public:
     BridgeOfHesitation(string name, int hp);
-
+    Building::BuildingType getType() const override;
     void applyEffect(BattleContext& context);
 };
 
 class BusterCallShip : public Building {
 public:
     BusterCallShip(string name, int hp);
-
+    Building::BuildingType getType() const override;
     void applyEffect(BattleContext& context);
     void onDestroyed(BattleContext& context);
 };
@@ -413,6 +470,11 @@ public:
     void processTurn(Character* character);
     void processBuildings();
     void checkEndCondition();
+
+    Building* chooseBuilding();
+    Character* chooseCharacterForChopper();
+    Character* chooseCharacterForCP9();
+    Character* chooseCharacterForStrawHats();
 
     string getResult() const;
 };
