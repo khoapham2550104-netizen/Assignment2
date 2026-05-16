@@ -4,5 +4,12 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-    return 0;
+    	
+    string inputFile = "sample_input";
+    EniesLobbyBattle battle(inputFile);
+    battle.runBattle();
+    cout << battle.getResult() << endl;
+    cout << endl;
+
+    
 }

@@ -58,7 +58,6 @@ public:
     Character();
     Character(string name, int hp, int atk, int def, int speed, int energy);
     virtual ~Character();
-    bool isSufficient(int needed);
     virtual int attack(Character* target, BattleContext& context) = 0;
     virtual int specialSkill(Character* target, BattleContext& context) = 0;
 
@@ -66,7 +65,6 @@ public:
     virtual int specialSkill(Building* target, BattleContext& context);
 
     virtual void endTurn(BattleContext& context);
-    virtual bool isSufficient() const;
     void receiveDamage(int damage);
     bool isAlive() const;
     string getName() const;
@@ -84,6 +82,7 @@ public:
     virtual CharType getType() const{
         return NONE;
     }
+    bool isSufficient() const;
 
     virtual bool isStrawHat() const;
     virtual bool isCP9() const;
@@ -120,7 +119,6 @@ public:
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-    bool isSufficient() const;
     CharType getClan() const;
     CharType getType() const override;
     void endTurn(BattleContext& context);
@@ -133,7 +131,6 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
-    bool isSufficient() const;
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
@@ -145,7 +142,6 @@ class Sanji : public StrawHat {
 public:
     Sanji(string name, int hp, int atk, int def,
           int speed, int energy, long long bounty);
-    bool isSufficient() const;
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
@@ -163,7 +159,6 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
-    bool isSufficient() const;
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
@@ -178,7 +173,6 @@ public:
 
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
-    bool isSufficient() const;
 
     int attack(Building* target, BattleContext& context);
     CharType getType() const override;
@@ -195,7 +189,6 @@ public:
     CharType getType() const override;
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-    bool isSufficient() const;
 
     void endTurn(BattleContext& context);
 };
@@ -207,14 +200,12 @@ public:
 
     Franky(string name, int hp, int atk, int def,
            int speed, int energy, long long bounty);
-    int isSufficientSkill() const;
-    bool isSufficient() const;
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     CharType getType() const override;
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-
+    int isSufficientSkill() const;
     void endTurn(BattleContext& context);
 };
 
@@ -230,7 +221,7 @@ public:
     CP9Agent(string name, int hp, int atk, int def,
              int speed, int energy, int doriki);
     Character::CharType getClan() const; 
-    bool isCP9() const;
+    bool isCP9() const override;
     virtual string str() const;
 };
 
@@ -246,7 +237,7 @@ public:
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
     Character::CharType getType() const override;
-    bool isCP9() const;
+
 };
 
 class Kaku : public CP9Agent {
@@ -257,7 +248,6 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
-    bool isSufficient() const;
 
 };
 
@@ -269,7 +259,6 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
-    bool isSufficient() const;
 
 };
 
@@ -281,7 +270,6 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
-    bool isSufficient() const;
 
 };
 
@@ -293,7 +281,6 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
-    bool isSufficient() const;
 
 };
 
@@ -305,7 +292,6 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
-    bool isSufficient() const;
 
 };
 
@@ -317,7 +303,6 @@ public:
     int attack(Character* target, BattleContext& context);
     int specialSkill(Character* target, BattleContext& context);
     void endTurn(BattleContext& context);
-    bool isSufficient() const;
 
 };
 
@@ -372,7 +357,7 @@ public:
     virtual ~Building();
 
     void receiveDamage(int damage);
-    bool isDestroyed() const;
+    bool isDestroyed() ;
 
     virtual void applyEffect(BattleContext& context) = 0;
     virtual void onDestroyed(BattleContext& context);
